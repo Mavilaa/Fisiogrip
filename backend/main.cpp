@@ -12,11 +12,21 @@
 #include "routes/router.h"
 #include "httplib.h"
 #include <iostream>
+#include <cstdlib>
+#include <string>
+
+// Valor da variável de ambiente (.env) ou o padrão, se não existir
+static std::string env(const char* nome, const char* padrao) {
+    const char* v = std::getenv(nome);
+    return (v && *v) ? v : padrao;
+}
 
 int main() {
     // Conecta ao banco de dados (Singleton)
     DBConnection& db = DBConnection::getInstance();
-    if (!db.connect("localhost", "root", "senha", "fisiogrip", 3306)) {
+    if (!db.connect(env("DB_HOST", "localhost"), env("DB_USER", "root"),
+                    env("DB_PASS", ""), env("DB_NAME", "fisiogrip"),
+                    std::stoi(env("DB_PORT", "3306")))) {
         std::cerr << "[ERRO] Falha ao conectar ao MySQL\n";
         return 1;
     }
@@ -28,8 +38,9 @@ int main() {
     // Registra todas as rotas
     Router::registerAll(server);
 
-    std::cout << "[OK] Servidor rodando em http://localhost:8080\n";
-    server.listen("0.0.0.0", 8080);
+    int porta = std::stoi(env("SERVER_PORT", "8080"));
+    std::cout << "[OK] Servidor rodando em http://localhost:" << porta << "\n";
+    server.listen("0.0.0.0", porta);
 
     return 0;
 }

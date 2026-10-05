@@ -2,9 +2,17 @@
 #include <jwt-cpp/jwt.h>
 #include <iostream>
 #include <chrono>
+#include <cstdlib>
 
-// Troque por uma chave secreta real em produção (variável de ambiente / .env)
-const std::string JwtManager::SECRET = "fisiogrip_secret_key_2024_troque_em_producao";
+// Lê a chave do JWT_SECRET (.env). O valor fixo só serve para rodar local.
+static std::string lerSecret() {
+    const char* s = std::getenv("JWT_SECRET");
+    if (s && *s) return s;
+    std::cerr << "[AVISO] JWT_SECRET nao definido, usando chave de desenvolvimento\n";
+    return "fisiogrip_secret_key_2024_troque_em_producao";
+}
+
+const std::string JwtManager::SECRET = lerSecret();
 
 std::string JwtManager::generate(int id_usuario, const std::string& email, bool is_admin) {
     auto now = std::chrono::system_clock::now();
