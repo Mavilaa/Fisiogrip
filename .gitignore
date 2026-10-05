@@ -1,0 +1,34 @@
+# ==== Segredos ====
+.env
+backend/.env
+frontend/.env
+
+# ==== Node / Frontend ====
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# ==== C++ / Backend ====
+backend/build/
+backend/cmake-build-*/
+backend/*.o
+backend/*.obj
+backend/fisiogrip_server
+backend/CMakeFiles/
+backend/CMakeCache.txt
+backend/Makefile.bak
+
+# ==== Sistema ====
+.DS_Store
+Thumbs.db
+*.log
+
+# ==== Editor ====
+.vscode/
+.idea/
+*.swp
+
+# ==== Pacotes ====
+*.zip
