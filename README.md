@@ -1,169 +1,89 @@
-#  Fisiogrip
+# FisioGrasp
 
-> **Tecnologia a serviço da fisioterapia e da reabilitação da força de preensão manual.**
+Luva de reabilitação da mão com Arduino. Um sensor de força (FSR) mede o aperto, um ultrassônico
+mede o movimento, e LEDs + buzzer avisam na hora se a força está dentro da faixa ideal. No fim da
+sessão os dados vão por Bluetooth (HC-05) para o app, que guarda o histórico e monta um ranking.
 
-O **Fisiogrip** é um projeto desenvolvido com o objetivo de auxiliar no acompanhamento e na avaliação da **força de preensão manual**, utilizando tecnologia para tornar o processo de coleta e acompanhamento de informações mais acessível e organizado.
+Projeto P6 da PUC Minas, feito em grupo: Gustavo Ávila, Gustavo Henrique, Miguel Schiavon e
+Henrique Rodrigues. Professor: Bernardo Guerra.
 
-O projeto foi desenvolvido no contexto acadêmico e busca integrar **tecnologia, saúde e fisioterapia**, explorando como soluções digitais podem contribuir para processos de avaliação e acompanhamento.
+**Demo do sistema web:** https://mavilaa.github.io/Fisiogrip/
+(entrar com `joao@email.com` / `123456`, ou `admin@fisiogrip.com` / `admin123` para o painel)
 
----
+| Início | Painel admin |
+|:---:|:---:|
+| ![Tela inicial](docs/screenshots/inicio.jpeg) | ![Sessões](docs/screenshots/admin-sessoes.jpeg) |
 
-## 🎯 Objetivo
+Vídeo da luva funcionando: [`docs/demo-luva.mp4`](docs/demo-luva.mp4)
 
-O principal objetivo do Fisiogrip é desenvolver uma solução tecnológica capaz de auxiliar profissionais e pacientes no acompanhamento relacionado à **força de preensão das mãos**.
+## O que tem aqui
 
-A proposta busca tornar a coleta e a visualização das informações mais práticas, permitindo que os dados obtidos possam ser utilizados como apoio durante o processo de acompanhamento.
-
----
-
-## 💡 Proposta
-
-A força de preensão manual é uma informação relevante em diferentes contextos de avaliação física e funcional.
-
-O Fisiogrip surge como uma proposta de solução para aproximar esse processo do meio digital, criando uma ferramenta que possa:
-
-* Facilitar a coleta de informações;
-* Organizar os dados obtidos durante as avaliações;
-* Auxiliar no acompanhamento da evolução do usuário;
-* Tornar o processo mais simples e acessível;
-* Demonstrar a aplicação da tecnologia em uma situação real relacionada à saúde.
-
----
-
-## 📱 Aplicação
-
-A aplicação foi desenvolvida utilizando **MIT App Inventor**, permitindo a criação de uma interface mobile e a implementação da lógica necessária para o funcionamento do sistema.
-
-O arquivo fonte da aplicação está disponível neste repositório:
-
-`Fisiogrip_integrado.aia`
-
-Para abrir e editar o projeto, importe o arquivo `.aia` diretamente no [MIT App Inventor](https://appinventor.mit.edu/).
-
----
-
-## 🧩 Estrutura do repositório
-
-```text
-Fisiogrip/
-│
-├── Fisiogrip_integrado.aia
-├── FisioGrasp.pdf
-├── relatorio_P6_1.pdf
-├── fisiogrip_github_ready.zip
-├── WhatsApp Video 2026-07-10 at 11.43.02.mp4
-└── README.md
+```
+app-android/   app do celular (MIT App Inventor) — importar o .aia em appinventor.mit.edu
+frontend/      sistema web em React + Vite
+backend/       API em C++ (cpp-httplib, JWT)
+db/            MySQL: tabelas, views, procedures e triggers do ranking
+docs/          apresentação, relatório do P6, prints e vídeo
 ```
 
-### Arquivos
+Como as partes conversam:
 
-| Arquivo                                     | Descrição                                                   |
-| ------------------------------------------- | ----------------------------------------------------------- |
-| `Fisiogrip_integrado.aia`                   | Arquivo-fonte da aplicação desenvolvida no MIT App Inventor |
-| `FisioGrasp.pdf`                            | Material de apresentação/documentação do projeto            |
-| `relatorio_P6_1.pdf`                        | Relatório acadêmico do projeto                              |
-| `fisiogrip_github_ready.zip`                | Pacote com os arquivos preparados para o projeto            |
-| `WhatsApp Video 2026-07-10 at 11.43.02.mp4` | Vídeo de demonstração                                       |
-| `README.md`                                 | Documentação principal do repositório                       |
+```
+Arduino --Bluetooth--> App / Front --HTTP + JWT--> Backend C++ --> MySQL (triggers atualizam o ranking)
+```
 
----
+## Estado atual
 
-## 🛠️ Tecnologias
+- Luva + app Android: é o que aparece no vídeo.
+- O front ainda usa dados simulados (`frontend/src/mock`). As chamadas reais para o backend já estão
+  escritas como comentário em `frontend/src/api/*.js`; falta trocar.
+- O backend tem todas as rotas abaixo, mas ainda não foi ligado ao front.
 
-* **MIT App Inventor**
-* **Programação visual por blocos**
-* **Desenvolvimento mobile**
-* **Git e GitHub**
-* **Tecnologia aplicada à fisioterapia**
+## Rodar localmente
 
----
+Banco (na ordem):
 
-## 🚀 Como utilizar
+```sql
+SOURCE db/tabelas.sql;
+SOURCE db/views.sql;
+SOURCE db/functions.sql;
+SOURCE db/crud.sql;
+SOURCE db/poo.sql;
+SOURCE db/triggers.sql;
+SOURCE db/logica.sql;
+SOURCE db/dados.sql;
+```
 
-### 1. Baixe o projeto
-
-Clone este repositório:
+Backend (precisa de `libmysqlcppconn-dev`, `nlohmann-json3-dev` e `libssl-dev`):
 
 ```bash
-git clone https://github.com/Mavilaa/Fisiogrip.git
+cd backend
+cp .env.example .env
+set -a; source .env; set +a
+make
+./fisiogrip_server
 ```
 
-Entre na pasta:
+Front:
 
 ```bash
-cd Fisiogrip
+cd frontend
+npm install
+npm run dev
 ```
 
-### 2. Abra o projeto
+## Rotas da API
 
-Acesse o [MIT App Inventor](https://appinventor.mit.edu/) e importe o arquivo:
+| Método | Rota | O que faz |
+|---|---|---|
+| POST | /login, /register, /logout | autenticação |
+| GET | /dispositivo/listar/:id | dispositivos do usuário |
+| POST | /dispositivo/conectar | ativa a luva |
+| POST | /sessao/iniciar, /sessao/encerrar | começa e fecha uma sessão |
+| GET | /sessao/historico/:id | histórico |
+| GET | /ranking/geral, /ranking/usuario/:id | ranking |
+| GET | /admin/usuarios, /admin/sessoes, /admin/relatorio | painel do admin |
 
-```text
-Fisiogrip_integrado.aia
-```
+Os e-mails de admin ficam em `backend/security/admin_config.h`.
 
-A partir disso, é possível visualizar, modificar e executar o projeto.
-
----
-
-## 🎥 Demonstração
-
-Uma demonstração do funcionamento do projeto está disponível no arquivo:
-
-```text
-WhatsApp Video 2026-07-10 at 11.43.02.mp4
-```
-
----
-
-## 📚 Documentação
-
-Para conhecer o desenvolvimento e o contexto acadêmico do projeto, consulte:
-
-* **FisioGrasp.pdf** — apresentação do projeto;
-* **relatorio_P6_1.pdf** — relatório acadêmico.
-
----
-
-## 👥 Projeto acadêmico
-
-O Fisiogrip foi desenvolvido como um projeto acadêmico, envolvendo a aplicação prática de conceitos de **desenvolvimento de software, prototipação e tecnologia aplicada à área da saúde**.
-
-O projeto demonstra como ferramentas de desenvolvimento acessíveis podem ser utilizadas para criar soluções voltadas a problemas do mundo real.
-
----
-
-## 🔮 Possíveis evoluções
-
-Como continuidade do projeto, algumas possibilidades incluem:
-
-* Armazenamento histórico das avaliações;
-* Gráficos de evolução da força de preensão;
-* Cadastro de pacientes;
-* Perfis específicos para pacientes e profissionais;
-* Exportação de relatórios;
-* Integração com sensores de força;
-* Armazenamento em banco de dados;
-* Melhorias na interface e experiência do usuário;
-* Desenvolvimento de uma versão web;
-* Integração com outros sistemas utilizados em fisioterapia.
-
----
-
-## 📄 Licença
-
-Este projeto está disponibilizado neste repositório para fins acadêmicos e de demonstração.
-
-Consulte os arquivos do projeto para informações adicionais sobre utilização e distribuição.
-
----
-
-## 📌 Status
-
-**Em desenvolvimento / projeto acadêmico.**
-
----
-
-<p align="center">
-  Desenvolvido como uma aplicação de tecnologia voltada à fisioterapia e reabilitação.
-</p>
+Licença MIT.
