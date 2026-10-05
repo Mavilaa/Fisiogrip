@@ -1,5 +1,5 @@
 // App.jsx
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BluetoothProvider } from './context/BluetoothContext';
 import { SessionProvider } from './context/SessionContext';
@@ -29,7 +29,7 @@ export default function App() {
     <AuthProvider>
       <BluetoothProvider>
         <SessionProvider>
-          <BrowserRouter>
+          <HashRouter>
             <Navbar />
             <Routes>
               {/* Públicas */}
@@ -51,7 +51,7 @@ export default function App() {
               <Route path="/" element={<RootRedirect />} />
               <Route path="*" element={<RootRedirect />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </SessionProvider>
       </BluetoothProvider>
     </AuthProvider>

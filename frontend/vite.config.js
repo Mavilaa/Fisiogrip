@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // caminhos relativos para funcionar no GitHub Pages (mavilaa.github.io/Fisiogrip)
+  base: './',
   server: {
     port: 3000,
     proxy: {
